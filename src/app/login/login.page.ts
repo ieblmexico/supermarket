@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms'
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
-export class LoginPageComponent implements OnInit {
+export class LoginPage implements OnInit {
   formLogin: FormGroup;
 
   constructor(private fb: FormBuilder, private httpClient: HttpClient, private router: Router) {
@@ -36,7 +36,7 @@ export class LoginPageComponent implements OnInit {
 
     this.httpClient.post('https://reqres.in/api/login', this.formLogin.value).subscribe(res => {
       console.log('>>> RES', res);
-      this.router.navigate(['home']);
+      this.router.navigate(['list']);
     }, err => {
       console.log('>>> ERROR HTTP', err);
       alert(err.error.error);
@@ -44,7 +44,6 @@ export class LoginPageComponent implements OnInit {
   }
 
   ngOnInit() {
-
   }
 
 }

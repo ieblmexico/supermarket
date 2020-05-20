@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-
+import { Router, ActivatedRoute } from '@angular/router';
+import { ItemsService } from '../services/items.service';
+import { Item } from '../models/item.model';
 
 @Component({
   selector: 'app-item',
@@ -10,31 +12,78 @@ import { HttpClient } from '@angular/common/http';
 })
 export class ItemPage implements OnInit {
   formItem: FormGroup;
-  constructor(private fb: FormBuilder, private httpClient: HttpClient) {
+  id: string;
+  hideDelete: boolean;
+  constructor(private fb: FormBuilder, private httpClient: HttpClient, private router: Router, private itemsService: ItemsService, private route: ActivatedRoute) {
+    this.hideDelete = true;
     this.formItem = this.fb.group({
-      name: ['Item', [Validators.required]],
-      quantity: [0, [Validators.required, Validators.minLength(1), Validators.min(1)]]
+      title: ['', [Validators.required]],
+      quantity: ['', [Validators.required, Validators.min(1)]]
     });
+
+    console.log('ITEM DE SERVICE', this.itemsService.currentItem);
+
+    this.route.queryParams.subscribe(params => {
+      console.log('QUERY PARAMS', params);
+      if (params.id) {
+        this.hideDelete = false;
+        this.id = params.id;
+        this.itemsService.getSingleItem(params.id).subscribe(item => {
+          this.formItem.get('title').setValue(item.title);
+          this.formItem.get('quantity').setValue(item.quantity);
+        });
+      }
+    });
+
+    // if (this.itemsService.currentItem) {
+    //   this.itemsService.getSingleItem(this.itemsService.currentItem._id).subscribe(item => {
+    //     this.formItem.get('title').setValue(item.title);
+    //     this.formItem.get('quantity').setValue(item.quantity);
+    //   });
+    // }
+
   }
 
-
-  addItem() {
-    if (this.formItem.invalid) {
-      alert('Ingresa los datos correctamente');
-      return;
-    }
-
-    /*this.httpClient.post('https://reqres.in/api/login', this.formItem.value).subscribe(res => {
-      console.log('>>> RES', res);
-
-    }, err => {
-      console.log('>>> ERROR HTTP', err);
-      alert(err.error.error);
-    });
-  }*/
-    alert('item add:' + this.formItem.get('name').value);
-  }
   ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      if (params.id) {
+        this.hideDelete = false;
+      }
+    });
   }
 
+  save() {
+    let item = new Item();
+    item.title = this.formItem.get('title').value;
+    item.quantity = this.formItem.get('quantity').value;
+
+    if (this.id) {
+      item._id = this.id;
+      this.itemsService.updateItem(item).subscribe(res => {
+        console.log('>>> RESULTADO UPDATE', res);
+        this.router.navigate(['list']);
+      }, err => {
+        console.log(err);
+        alert('Ocurrió un error al actualizar el item');
+      });
+    } else {
+      this.itemsService.saveItem(item).subscribe(res => {
+        console.log('>>> RESULTADO SAVE', res);
+        this.router.navigate(['list']);
+      }, err => {
+        console.log(err);
+        alert('Ocurrió un error al guardar el item');
+      });
+    }
+  }
+
+  delete(){
+    this.itemsService.deleteItem(this.id).subscribe(res => {
+      console.log('>>> RESULTADO DELETE', res);
+      this.router.navigate(['list']);
+    }, err => {
+      console.log(err);
+      alert('Ocurrió un error al Borrar el item');
+    });
+  }
 }

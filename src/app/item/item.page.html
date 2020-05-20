@@ -1,17 +1,20 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>item</ion-title>
+    <ion-title>Item</ion-title>
+    <ion-button slot="end" (click)="delete()" [hidden]="hideDelete" shape="round">
+      <ion-icon name="trash-outline"></ion-icon>
+    </ion-button>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [formGroup]="formItem">
   <ion-item>
-    <ion-label position="floating">Nombre:</ion-label>
-    <ion-input type="text" formControlName="name"></ion-input>
+    <ion-label position="floating">Título:</ion-label>
+    <ion-input type="text" formControlName="title"></ion-input>
   </ion-item>
   <ion-item>
     <ion-label position="floating">Cantidad:</ion-label>
-    <ion-input type="text" formControlName="quantity"></ion-input>
+    <ion-input type="number" formControlName="quantity"></ion-input>
   </ion-item>
-  <ion-button expand="full" (click)="addItem()" [disabled]="formItem.invalid">Agregar</ion-button>
+  <ion-button expand="full" (click)="save()" [disabled]="formItem.invalid">Guardar</ion-button>
 </ion-content>
